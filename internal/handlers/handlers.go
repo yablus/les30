@@ -12,6 +12,7 @@ import (
 	"github.com/yablus/les30/internal/requests"
 )
 
+/*
 type UserStorage interface {
 	List() []*models.User
 	Get(int) *models.User
@@ -19,9 +20,11 @@ type UserStorage interface {
 	Create(models.User)
 	Delete(int) *models.User
 }
+*/
 
 type UserHandler struct {
 	Storage models.Storage
+	//Storage test.FakeStorage
 }
 
 func (uh *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
