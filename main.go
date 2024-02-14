@@ -79,6 +79,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/yablus/les30/internal/handlers"
+	"github.com/yablus/les30/internal/models"
 )
 
 func main() {
@@ -98,7 +99,9 @@ func SetupServer() chi.Router {
 
 func UserRoutes() chi.Router {
 	r := chi.NewRouter()
-	u := &handlers.UserHandler{}
+	//u := &handlers.UserHandler{&test.FakeStorage{}}
+	u := &handlers.UserHandler{models.NewStorage()}
+
 	r.Get("/", u.ListUsers)                // GET /users
 	r.Post("/", u.CreateUser)              // POST /users
 	r.Put("/{id}", u.UpdateUser)           // PUT /users/{id}

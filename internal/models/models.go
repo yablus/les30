@@ -13,6 +13,12 @@ type Storage struct {
 	Users []*User
 }
 
+func NewStorage() *Storage {
+	return &Storage{
+		Users: make([]*User, 0),
+	}
+}
+
 func (u *Storage) List() []*User {
 	return u.Users
 }

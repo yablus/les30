@@ -25,22 +25,22 @@ type FakeStorage struct {
 	Users []*models.User
 }
 
-func (s FakeStorage) List() []*models.User {
+func (s *FakeStorage) List() []*models.User {
 	return fakeUsers
 }
 
-func (s FakeStorage) Get(_ int) *models.User {
+func (s *FakeStorage) Get(_ int) *models.User {
 	return fakeUsers[0]
 }
 
-func (s FakeStorage) Update(int, models.User) *models.User {
+func (s *FakeStorage) Update(int, models.User) *models.User {
 	return fakeUsers[1]
 }
 
-func (s FakeStorage) Create(_ models.User) {
+func (s *FakeStorage) Create(_ models.User) {
 	return
 }
 
-func (s FakeStorage) Delete(_ int) *models.User {
+func (s *FakeStorage) Delete(_ int) *models.User {
 	return nil
 }

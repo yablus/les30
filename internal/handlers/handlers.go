@@ -12,7 +12,6 @@ import (
 	"github.com/yablus/les30/internal/requests"
 )
 
-/*
 type UserStorage interface {
 	List() []*models.User
 	Get(int) *models.User
@@ -20,11 +19,9 @@ type UserStorage interface {
 	Create(models.User)
 	Delete(int) *models.User
 }
-*/
 
 type UserHandler struct {
-	Storage models.Storage
-	//Storage test.FakeStorage
+	Storage UserStorage
 }
 
 func (uh *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +49,7 @@ func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var list string
-	for _, u := range uh.Storage.Users {
+	for _, u := range uh.Storage.List() {
 		for _, v := range user.Friends {
 			if u.ID == v {
 				if list != "" {
@@ -88,7 +85,7 @@ func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusCreated) // Здесь вернуть 201, а не 200, как указано в задании.
+	w.WriteHeader(http.StatusCreated)
 	var req requests.MakeFriends
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -108,7 +105,7 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 	}
 	var userS, userT models.User
 	countUsers := 0
-	for _, u := range uh.Storage.Users {
+	for _, u := range uh.Storage.List() {
 		if u.ID == req.Source_id {
 			userS = *u
 			countUsers++
@@ -184,7 +181,7 @@ func (uh *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var user models.User
-	for _, u := range uh.Storage.Users {
+	for _, u := range uh.Storage.List() {
 		if u.ID == req.Target_id {
 			user = *u
 			break
