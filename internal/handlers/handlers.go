@@ -38,7 +38,6 @@ func setupServer() chi.Router {
 		w.Write([]byte("OK"))
 	})
 	r.Mount("/users", UserRoutes())
-	http.ListenAndServe(":8080", r)
 	return r
 }
 
