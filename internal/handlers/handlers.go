@@ -25,7 +25,6 @@ type UserHandler struct {
 }
 
 func (uh *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-	//err := json.NewEncoder(w).Encode(models.ListUsers())
 	err := json.NewEncoder(w).Encode(uh.Storage.List())
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -43,7 +42,6 @@ func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
 		log.Println("Internal error")
 		return
 	}
-	//user := models.GetUser(intId)
 	user := uh.Storage.Get(intId)
 	if user == nil {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -51,7 +49,6 @@ func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var list string
-	//for _, u := range Users {
 	for _, u := range uh.Storage.Users {
 		for _, v := range user.Friends {
 			if u.ID == v {
@@ -76,14 +73,12 @@ func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("Bad request:", err.Error())
 		return
 	}
-	//defer r.Body.Close()
 	var user models.User
 	models.IDs++
 	user.ID = models.IDs
 	user.Name = req.Name
 	user.Age = req.Age
 	user.Friends = req.Friends
-	//models.StoreUser(user)
 	uh.Storage.Create(user)
 	log.Printf("User created. ID=%d", user.ID)
 	w.Write([]byte(fmt.Sprint(user.ID)))
@@ -110,7 +105,6 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 	}
 	var userS, userT models.User
 	countUsers := 0
-	//for _, u := range Users {
 	for _, u := range uh.Storage.Users {
 		if u.ID == req.Source_id {
 			userS = *u
@@ -135,7 +129,6 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 	}
 	userS.Friends = append(userS.Friends, userT.ID)
 	userT.Friends = append(userT.Friends, userS.ID)
-	//if models.UpdateUser(userS.ID, userS) == nil || models.UpdateUser(userT.ID, userT) == nil {
 	if uh.Storage.Update(userS.ID, userS) == nil || uh.Storage.Update(userT.ID, userT) == nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		log.Println("Internal error")
@@ -161,7 +154,6 @@ func (uh *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("Internal error")
 		return
 	}
-	//user := models.GetUser(intId)
 	user := uh.Storage.Get(intId)
 	if user == nil {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -169,7 +161,6 @@ func (uh *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user.Age = req.NewAge
-	//updatedUser := models.UpdateUser(intId, *user)
 	updatedUser := uh.Storage.Update(intId, *user)
 	if updatedUser == nil {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -190,14 +181,12 @@ func (uh *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var user models.User
-	//for _, u := range Users {
 	for _, u := range uh.Storage.Users {
 		if u.ID == req.Target_id {
 			user = *u
 			break
 		}
 	}
-	//if models.DeleteUser(req.Target_id) == nil {
 	if uh.Storage.Delete(req.Target_id) == nil {
 		http.Error(w, "Not found", http.StatusNotFound)
 		log.Println("Not found: Пользователь не найден")
