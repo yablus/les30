@@ -74,13 +74,36 @@ Host: localhost:8080
 package main
 
 import (
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/yablus/les30/internal/handlers"
-	"github.com/yablus/les30/internal/models"
 )
 
 func main() {
-	//storage := &test.UserHandlerTest{}
-	storage := models.NewStorage()
-	app := &handlers.UserHandler{storage}
-	app.Run()
+	r := SetupServer()
+	http.ListenAndServe(":8080", r)
+}
+
+func SetupServer() chi.Router {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) { // GET "/"
+		w.Write([]byte("OK"))
+	})
+	r.Mount("/users", UserRoutes())
+	return r
+}
+
+func UserRoutes() chi.Router {
+	r := chi.NewRouter()
+	u := &handlers.UserHandler{}
+	r.Get("/", u.ListUsers)                // GET /users
+	r.Post("/", u.CreateUser)              // POST /users
+	r.Put("/{id}", u.UpdateUser)           // PUT /users/{id}
+	r.Delete("/", u.DeleteUser)            // DELETE /users
+	r.Post("/make_friends", u.MakeFriends) // POST /users/make_friends
+	r.Get("/{id}/friends", u.GetFriends)   // GET /users/{id}/friends
+	return r
 }

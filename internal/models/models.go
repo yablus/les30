@@ -1,5 +1,7 @@
 package models
 
+import "log"
+
 var IDs int
 
 type User struct {
@@ -15,11 +17,13 @@ type Storage struct {
 	Users []*User
 }
 
+/*
 func NewStorage() *Storage {
 	return &Storage{
-		Users: /*[]*User{}, */ make([]*User, 0),
+		Users: []*User{}, // make([]*User, 0),
 	}
 }
+*/
 
 func (u *Storage) List() []*User {
 	return u.Users
@@ -45,6 +49,7 @@ func (u *Storage) Update(id int, userUpdate User) *User {
 }
 
 func (u *Storage) Create(user User) {
+	log.Println(user)
 	u.Users = append(u.Users, &user)
 }
 
