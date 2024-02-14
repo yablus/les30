@@ -17,7 +17,7 @@ type Storage struct {
 
 func NewStorage() *Storage {
 	return &Storage{
-		Users: []*User{}, //make([]*User, 0),
+		Users: /*[]*User{}, */ make([]*User, 0),
 	}
 }
 
@@ -44,8 +44,8 @@ func (u *Storage) Update(id int, userUpdate User) *User {
 	return nil
 }
 
-func (u *Storage) Create(user *User) {
-	u.Users = append(u.Users, user)
+func (u *Storage) Create(user User) {
+	u.Users = append(u.Users, &user)
 }
 
 func (u *Storage) Delete(id int) *User {
