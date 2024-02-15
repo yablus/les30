@@ -1,4 +1,4 @@
-package test
+package testStorage
 
 import "github.com/yablus/les30/internal/models"
 
