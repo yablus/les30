@@ -9,8 +9,26 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/yablus/les30/internal/models"
-	"github.com/yablus/les30/internal/requests"
 )
+
+type reqCreate struct {
+	Name    string `json:"name"`
+	Age     int    `json:"age"`
+	Friends []int  `json:"friends"`
+}
+
+type reqMakeFriends struct {
+	Source_id int `json:"source_id"`
+	Target_id int `json:"target_id"`
+}
+
+type reqDelete struct {
+	Target_id int `json:"target_id"`
+}
+
+type reqUpdate struct {
+	NewAge int `json:"new age"`
+}
 
 type UserStorage interface {
 	List() []*models.User
@@ -66,7 +84,7 @@ func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
 
 func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
-	var req requests.Create
+	var req reqCreate
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -86,7 +104,7 @@ func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
-	var req requests.MakeFriends
+	var req reqMakeFriends
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -140,7 +158,7 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var req requests.Update
+	var req reqUpdate
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -173,7 +191,7 @@ func (uh *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	var req requests.Delete
+	var req reqDelete
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
