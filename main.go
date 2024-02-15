@@ -99,7 +99,7 @@ func SetupServer() chi.Router {
 
 func UserRoutes() chi.Router {
 	r := chi.NewRouter()
-	//u := &handlers.UserHandler{Storage: &testStorage.FakeStorage{}}
+	//u := &handlers.UserHandler{Storage: &repository.FakeStorage{}}
 	u := &handlers.UserHandler{Storage: repository.NewStorage()}
 
 	r.Get("/", u.ListUsers)                // GET /users
