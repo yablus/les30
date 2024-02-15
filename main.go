@@ -79,7 +79,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/yablus/les30/internal/handlers"
-	"github.com/yablus/les30/internal/storage/repository"
+	"github.com/yablus/les30/internal/repository"
 )
 
 func main() {
