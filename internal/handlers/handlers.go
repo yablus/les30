@@ -9,26 +9,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/yablus/les30/internal/models"
+	"github.com/yablus/les30/internal/usecase"
 )
-
-type reqCreate struct {
-	Name    string `json:"name"`
-	Age     int    `json:"age"`
-	Friends []int  `json:"friends"`
-}
-
-type reqMakeFriends struct {
-	Source_id int `json:"source_id"`
-	Target_id int `json:"target_id"`
-}
-
-type reqDelete struct {
-	Target_id int `json:"target_id"`
-}
-
-type reqUpdate struct {
-	NewAge int `json:"new age"`
-}
 
 type UserStorage interface {
 	List() []*models.User
@@ -66,45 +48,42 @@ func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not found: Пользователь не найден")
 		return
 	}
-	var list string
-	for _, u := range uh.Storage.List() {
-		for _, v := range user.Friends {
-			if u.ID == v {
-				if list != "" {
-					list += ", "
-				}
-				list += u.Name
-			}
-		}
-	}
+	list := usecase.ListFriends(uh.Storage.List(), user.Friends)
 	wr := fmt.Sprintf("Друзья %s: %v %s", user.Name, user.Friends, list)
 	log.Println("List of friends.", wr)
-	w.Write([]byte(fmt.Sprint(user.Friends)))
+	//w.Write([]byte(fmt.Sprint(user.Friends))) // Для условия задания
+	err = json.NewEncoder(w).Encode(user.Friends)
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		log.Println("Internal error")
+		return
+	}
 }
 
 func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
-	var req reqCreate
+	var req models.ReqCreate
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Println("Bad request:", err.Error())
 		return
 	}
-	var user models.User
-	models.IDs++
-	user.ID = models.IDs
-	user.Name = req.Name
-	user.Age = req.Age
-	user.Friends = req.Friends
+	user := usecase.AddIdToUser(req)
 	uh.Storage.Create(user)
 	log.Printf("User created. ID=%d", user.ID)
-	w.Write([]byte(fmt.Sprint(user.ID)))
+	//w.Write([]byte(fmt.Sprint(user.ID))) // Для условия задания
+	err = json.NewEncoder(w).Encode(user)
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		log.Println("Internal error")
+		return
+	}
 }
 
 func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
-	var req reqMakeFriends
+	var req models.ReqMakeFriends
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -154,11 +133,23 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 	}
 	wr := fmt.Sprintf("%s и %s теперь друзья", userS.Name, userT.Name)
 	log.Println("Friends Added.", wr)
-	w.Write([]byte(wr))
+	//w.Write([]byte(wr)) // Для условия задания
+	err = json.NewEncoder(w).Encode(userS)
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		log.Println("Internal error")
+		return
+	}
+	err = json.NewEncoder(w).Encode(userT)
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		log.Println("Internal error")
+		return
+	}
 }
 
 func (uh *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var req reqUpdate
+	var req models.ReqUpdate
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -187,11 +178,17 @@ func (uh *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	wr := fmt.Sprintf("Возраст %s изменен на %d", user.Name, user.Age)
 	log.Println("User Updated.", wr)
-	w.Write([]byte("Возраст пользователя успешно обновлен"))
+	//w.Write([]byte("Возраст пользователя успешно обновлен")) // Для условия задания
+	err = json.NewEncoder(w).Encode(user)
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		log.Println("Internal error")
+		return
+	}
 }
 
 func (uh *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	var req reqDelete
+	var req models.ReqDelete
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -211,5 +208,11 @@ func (uh *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("User deleted. Name=%s", user.Name)
-	w.Write([]byte(fmt.Sprint(user.Name)))
+	//w.Write([]byte(fmt.Sprint(user.Name))) // Для условия задания
+	err = json.NewEncoder(w).Encode(user)
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		log.Println("Internal error")
+		return
+	}
 }
