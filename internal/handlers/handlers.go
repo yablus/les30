@@ -8,20 +8,13 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi"
+	"github.com/yablus/les30/internal/handlers/dto"
 	"github.com/yablus/les30/internal/models"
-	"github.com/yablus/les30/internal/usecase"
+	"github.com/yablus/les30/internal/repository"
 )
 
-type UserStorage interface {
-	List() []*models.User
-	Get(int) *models.User
-	Update(int, models.User) *models.User
-	Create(models.User)
-	Delete(int) *models.User
-}
-
 type UserHandler struct {
-	Storage UserStorage
+	Storage repository.UserStorage
 }
 
 func (uh *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +24,7 @@ func (uh *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 		log.Println("Internal error")
 		return
 	}
-	log.Printf("List all users.")
+	log.Println("List all users")
 }
 
 func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +41,7 @@ func (uh *UserHandler) GetFriends(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not found: Пользователь не найден")
 		return
 	}
-	list := usecase.ListFriends(uh.Storage.List(), user.Friends)
+	list := dto.ListFriends(uh.Storage.List(), user.Friends)
 	wr := fmt.Sprintf("Друзья %s: %v %s", user.Name, user.Friends, list)
 	log.Println("List of friends.", wr)
 	//w.Write([]byte(fmt.Sprint(user.Friends))) // Для условия задания
@@ -69,7 +62,7 @@ func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("Bad request:", err.Error())
 		return
 	}
-	user := usecase.AddIdToUser(req)
+	user := dto.AddIdToUser(req)
 	uh.Storage.Create(user)
 	log.Printf("User created. ID=%d", user.ID)
 	//w.Write([]byte(fmt.Sprint(user.ID))) // Для условия задания
@@ -90,6 +83,7 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 		log.Println("Bad request:", err.Error())
 		return
 	}
+	/* ----------------- */
 	if req.Source_id == req.Target_id {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		log.Println("Bad request: неверный id пользователя")
@@ -131,6 +125,7 @@ func (uh *UserHandler) MakeFriends(w http.ResponseWriter, r *http.Request) {
 		log.Println("Internal error")
 		return
 	}
+	/* ------------- */
 	wr := fmt.Sprintf("%s и %s теперь друзья", userS.Name, userT.Name)
 	log.Println("Friends Added.", wr)
 	//w.Write([]byte(wr)) // Для условия задания

@@ -2,6 +2,14 @@ package repository
 
 import "github.com/yablus/les30/internal/models"
 
+type UserStorage interface {
+	List() []*models.User
+	Get(int) *models.User
+	Update(int, models.User) *models.User
+	Create(models.User)
+	Delete(int) *models.User
+}
+
 type MemStorage struct {
 	Users []*models.User
 }

@@ -1,4 +1,4 @@
-package usecase
+package dto
 
 import (
 	"github.com/yablus/les30/internal/models"
